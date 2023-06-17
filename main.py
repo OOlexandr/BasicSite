@@ -13,7 +13,6 @@ JSON = "storage/data.json"
 
 class HttpHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        print("got request")
         pr_url = urllib.parse.urlparse(self.path)
         if pr_url.path == '/':
             self.send_html_file('index.html')
@@ -25,9 +24,7 @@ class HttpHandler(BaseHTTPRequestHandler):
             self.send_html_file('error.html', 404)
     
     def do_POST(self):
-        print("got submition")
         data = self.rfile.read(int(self.headers['Content-Length']))
-        print(data)
         self.send_to_server(data)
 
         self.send_response(302)
@@ -56,12 +53,10 @@ class HttpHandler(BaseHTTPRequestHandler):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         server = UDP_IP, UDP_PORT
         sock.sendto(data, server)
-        print("sent data")
         sock.close()
 
 
 def run_client(server_class=HTTPServer, handler_class=HttpHandler):
-    print("started client")
     server_address = ('', 3000)
     http = server_class(server_address, handler_class)
     try:
@@ -71,15 +66,12 @@ def run_client(server_class=HTTPServer, handler_class=HttpHandler):
 
 
 def run_server():
-    print("started server")
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     server = UDP_IP, UDP_PORT
     sock.bind(server)
     try:
         while True:
             data, address = sock.recvfrom(1024)
-            print("recieved data")
-            print(data)
             data_parse = urllib.parse.unquote_plus(data.decode())
             data_dict = {str(datetime.now()):{key: value for key, value in [el.split('=') for el in data_parse.split('&')]}}
             with open(JSON, "a") as j:
