@@ -74,9 +74,13 @@ def run_server():
             data, address = sock.recvfrom(1024)
             data_parse = urllib.parse.unquote_plus(data.decode())
             data_dict = {str(datetime.now()):{key: value for key, value in [el.split('=') for el in data_parse.split('&')]}}
-            with open(JSON, "a") as j:
-                json.dump(data_dict, j)
-                print("written data")
+
+            with open(JSON) as j:
+                data = json.load(j)
+            data.update(data_dict)
+            with open(JSON, "w") as j:
+                json.dump(data, j)
+            
 
     except KeyboardInterrupt:
         print(f'Destroy server')
